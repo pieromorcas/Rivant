@@ -219,17 +219,29 @@
                   margin-left 0.42s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .brand-expandable-pill:hover,
-    .brand-expandable-pill:focus-visible,
+    /* Hover solo en pantallas con ratón/cursor real */
+    @media (hover: hover) and (pointer: fine) {
+      .brand-expandable-pill:hover {
+        max-width: 320px;
+        padding: 0 16px 0 14px;
+        border-color: var(--accent);
+        box-shadow: var(--shadow-subtle), 0 0 0 1px var(--accent);
+      }
+      .brand-expandable-pill:hover .brand-expandable-text {
+        max-width: 250px;
+        opacity: 1;
+        margin-left: 10px;
+        pointer-events: auto;
+      }
+    }
+
+    /* Estado expandido en clic / tap (móvil y escritorio) */
     .brand-expandable-pill.expanded {
       max-width: 320px;
       padding: 0 16px 0 14px;
       border-color: var(--accent);
       box-shadow: var(--shadow-subtle), 0 0 0 1px var(--accent);
     }
-
-    .brand-expandable-pill:hover .brand-expandable-text,
-    .brand-expandable-pill:focus-visible .brand-expandable-text,
     .brand-expandable-pill.expanded .brand-expandable-text {
       max-width: 250px;
       opacity: 1;
@@ -724,7 +736,19 @@
       if (pill) {
         pill.addEventListener('click', function(e) {
           if (e.target && e.target.tagName === 'A') return;
-          pill.classList.toggle('expanded');
+          e.stopPropagation();
+          var isExpanded = pill.classList.toggle('expanded');
+          if (!isExpanded) {
+            pill.blur();
+          }
+        });
+
+        // Cerrar al tocar fuera en celular o escritorio
+        document.addEventListener('click', function(e) {
+          if (!pill.contains(e.target) && pill.classList.contains('expanded')) {
+            pill.classList.remove('expanded');
+            pill.blur();
+          }
         });
       }
 
